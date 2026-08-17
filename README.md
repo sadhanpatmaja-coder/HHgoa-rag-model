@@ -49,22 +49,7 @@ P100 (worst case)
 
 Results are documented in docs/latency_report.md.
 
-🚀 Setup & Installation
-bash
-git clone https://github.com/<your-team>/voice-rag.git
-cd voice-rag
-pip install -r requirements.txt
-Add your API keys in config.yaml:
 
-yaml
-speech_to_text: "sarvam"
-openai_api_key: "YOUR_KEY"
-vector_db: "faiss"
-▶️ Running the Demo
-Run the pipeline:
 
-bash
-python src/pipeline.py
 
-bash
-streamlit run demo/app.py
+
