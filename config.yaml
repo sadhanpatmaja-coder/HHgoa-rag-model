@@ -1,21 +1,10 @@
-
-speech_to_text: "sarvam"   
-
-huggingface_api_key: "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"
-
-
-vector_db: "faiss"        
-
-
-embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
-llm_model: "flan-t5-base"  
-
-
-chunk_size: 500
-chunk_overlap: 50
-
-max_response_length: 1024
-allow_off_topic: false
-
-
-data_dir: "data/processed"
+speech_to_text:
+  provider: "sarvam"
+  model: "saaras:v4"
+vector_db:
+  provider: "qdrant"
+  path: "./qdrant_storage"
+llm:
+  provider: "groq"
+  model: "llama3-8b-8192" 
+  temperature: 0.1
