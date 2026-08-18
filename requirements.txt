@@ -1,9 +1,8 @@
-streamlit
+fastapi
+uvicorn
+httpx
+groq
+qdrant-client
 datasets
-sentence-transformers
-faiss-cpu
 numpy
-pandas
-pyyaml
-requests
 python-dotenv
