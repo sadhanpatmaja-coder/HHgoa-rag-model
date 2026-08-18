@@ -1,26 +1,30 @@
-import time
-import numpy as np
+import os
 from fastapi import FastAPI, UploadFile, File
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+from src.pipeline import run_voice_rag_pipeline, get_latency_stats
 
-app = FastAPI()
-latencies = []
+load_dotenv()
 
-@app.post("/v1/voice-rag")
-async def voice_rag(file: UploadFile = File(...)):
-    start_time = time.perf_counter()
-    audio_bytes = await file.read()
-    
-    text = await transcribe_audio(audio_bytes)
-   
-    if "unsafe" in text.lower():
-        return {"error": "Guardrail triggered"}
-        
- 
-    context = await retrieve_context(query_vector=[0.1]*384) 
-    
- 
-    duration = (time.perf_counter() - start_time) * 1000
-    latencies.append(duration)
-    
-    return {"text": text, "context": context, "latency_ms": duration}
+app = FastAPI(title="HH Goa Voice-RAG Service Engine")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.post("/api/voice-rag")
+async def voice_rag_endpoint(file: UploadFile = File(...)):
+    audio_content = await file.read()
+    return StreamingResponse(
+        run_voice_rag_pipeline(audio_content, file.filename),
+        media_type="text/plain; charset=utf-8"
+    )
+
+@app.get("/api/analytics")
+async def analytics_endpoint():
+    return JSONResponse(content=get_latency_stats())
+
