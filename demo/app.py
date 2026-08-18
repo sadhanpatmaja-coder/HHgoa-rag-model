@@ -1,19 +1,26 @@
-import gradio as gr
-from src.pipeline import run_pipeline
+import time
+import numpy as np
+from fastapi import FastAPI, UploadFile, File
+from fastapi.responses import StreamingResponse
 
-def voice_rag_pipeline(audio_file):
-    # Pass uploaded audio to your pipeline
-    answer = run_pipeline(audio_file)
-    return answer
+app = FastAPI()
+latencies = []
 
-# Gradio Interface
-demo = gr.Interface(
-    fn=voice_rag_pipeline,
-    inputs=gr.Audio(sources=["microphone", "upload"], type="filepath"),
-    outputs="text",
-    title="🎤 Voice-Enabled RAG Demo",
-    description="Speak or upload a voice query. The system transcribes, retrieves context, and generates an answer."
-)
-
-if __name__ == "__main__":
-    demo.launch()
+@app.post("/v1/voice-rag")
+async def voice_rag(file: UploadFile = File(...)):
+    start_time = time.perf_counter()
+    audio_bytes = await file.read()
+    
+    text = await transcribe_audio(audio_bytes)
+   
+    if "unsafe" in text.lower():
+        return {"error": "Guardrail triggered"}
+        
+ 
+    context = await retrieve_context(query_vector=[0.1]*384) 
+    
+ 
+    duration = (time.perf_counter() - start_time) * 1000
+    latencies.append(duration)
+    
+    return {"text": text, "context": context, "latency_ms": duration}
